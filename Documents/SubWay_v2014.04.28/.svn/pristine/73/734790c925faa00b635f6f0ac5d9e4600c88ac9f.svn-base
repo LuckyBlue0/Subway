@@ -1,0 +1,238 @@
+//
+//  ChangeLineView.m
+//  SubWay
+//
+//  Created by apple on 14-3-26.
+//  Copyright (c) 2014年 apple. All rights reserved.
+//
+
+#import "ChangeLineView.h"
+
+@implementation ChangeLineView
+
+@synthesize imageBtn,startText,
+endText,queryBtn,titleLabel,
+lineView,bgView;
+@synthesize query;
+@synthesize topView;
+@synthesize delegate;
+
+- (id)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self)
+    {
+        d=[Dijkstra new];
+        
+        bgView=[[UIView alloc]initWithFrame:CGRectMake(0,20,self.frame.size.width,260)];
+        [bgView setBackgroundColor:[UIColor colorWithRed:1 green:1 blue:1 alpha:0.95]];
+        [self addSubview:bgView];
+        
+        titleLabel=[[UILabel alloc]initWithFrame:CGRectMake(0,0,self.frame.size.width, 30)];
+        titleLabel.text=@"换 乘";
+        titleLabel.backgroundColor=[UIColor clearColor];
+        titleLabel.textAlignment=NSTextAlignmentCenter;
+        titleLabel.font=[UIFont boldSystemFontOfSize:20];
+        titleLabel.textColor=[UIColor colorWithRed:0.11 green:0.37 blue:0.42 alpha:1];
+        [bgView addSubview:titleLabel];
+        
+        lineView=[[UIView alloc]initWithFrame:CGRectMake(0,258, self.frame.size.width,2)];
+        [lineView setBackgroundColor:[UIColor colorWithRed:0.23 green:0.71 blue:0.77 alpha:1]];
+        [bgView addSubview:lineView];
+        
+        imageBtn=[UIButton buttonWithType:UIButtonTypeCustom];
+        imageBtn.frame=CGRectMake(40,65,30,76);
+        [imageBtn setBackgroundImage:[UIImage imageNamed:@"iPhone_btn_17"] forState:UIControlStateNormal];
+        [imageBtn addTarget:self action:@selector(changeStartAndEnd) forControlEvents:UIControlEventTouchUpInside];
+        [bgView addSubview:imageBtn];
+        
+        startText=[[UITextField alloc]initWithFrame:CGRectMake(90,60,180,40)];
+        startText.borderStyle=UITextBorderStyleRoundedRect;
+        startText.placeholder=@"请输入起点";
+        startText.returnKeyType=UIReturnKeyDone;
+        startText.delegate=self;
+        
+        UILabel *leftV=[[UILabel alloc]initWithFrame:CGRectMake(0, 0,20, 20)];
+        leftV.text=@"起";
+        leftV.textAlignment=NSTextAlignmentCenter;
+        leftV.textColor=[UIColor colorWithRed:0.09 green:0.42 blue:0.26 alpha:1];
+        startText.leftViewMode=UITextFieldViewModeAlways;
+        startText.leftView=leftV;
+
+        UIButton *close=[UIButton buttonWithType:UIButtonTypeRoundedRect];
+        close.frame=CGRectMake(0, 0, 20, 20);
+        [close setBackgroundImage:[UIImage imageNamed:@"iPhone_btn_close_0_0"] forState:UIControlStateNormal];
+        [close addTarget:self action:@selector(closeAction) forControlEvents:UIControlEventTouchUpInside];
+        startText.rightViewMode=UITextFieldViewModeAlways;
+        startText.rightView=close;
+        
+        startText.contentVerticalAlignment=UIControlContentVerticalAlignmentCenter;
+        startText.clearButtonMode=UITextFieldViewModeWhileEditing;
+        [bgView addSubview:startText];
+        
+        endText=[[UITextField alloc]initWithFrame:CGRectMake(90,105,180,40)];
+        endText.borderStyle=UITextBorderStyleRoundedRect;
+        endText.placeholder=@"请输入终点";
+        endText.returnKeyType=UIReturnKeyDone;
+        endText.delegate=self;
+        endText.clearButtonMode=UITextFieldViewModeWhileEditing;
+        endText.contentVerticalAlignment=UIControlContentVerticalAlignmentCenter;
+        [bgView addSubview:endText];
+        
+        UILabel *leftV1=[[UILabel alloc]initWithFrame:CGRectMake(0, 0,20, 20)];
+        leftV1.text=@"终";
+        leftV1.textAlignment=NSTextAlignmentCenter;
+        leftV1.textColor=[UIColor colorWithRed:0.88 green:0.21 blue:0.16 alpha:1];
+        endText.leftViewMode=UITextFieldViewModeAlways;
+        endText.leftView=leftV1;
+        
+        UIButton *close1=[UIButton buttonWithType:UIButtonTypeRoundedRect];
+        close1.frame=CGRectMake(0, 0, 20, 20);
+        [close1 setBackgroundImage:[UIImage imageNamed:@"iPhone_btn_close_0_0"] forState:UIControlStateNormal];
+        [close1 addTarget:self action:@selector(close1Action) forControlEvents:UIControlEventTouchUpInside];
+        endText.rightViewMode=UITextFieldViewModeAlways;
+        endText.rightView=close1;
+        
+        queryBtn=[UIButton buttonWithType:UIButtonTypeCustom];
+        queryBtn.frame=CGRectMake(45,180,220,40);
+        [queryBtn setBackgroundImage:[UIImage imageNamed:@"iPhone_btn_18"] forState:UIControlStateNormal];
+        [queryBtn setTitle:@"查询" forState:UIControlStateNormal];
+        [queryBtn addTarget:self action:@selector(queryBtnAction) forControlEvents:UIControlEventTouchUpInside];
+        [bgView addSubview:queryBtn];
+        
+    }
+    return self;
+}
+-(void)closeAction
+{
+    startText.text=@"";
+    [startText becomeFirstResponder];
+}
+-(void)close1Action
+{
+    endText.text=@"";
+    [endText becomeFirstResponder];
+}
+-(void)changeStartAndEnd
+{
+    NSString *a=startText.text;
+    NSString *b=endText.text;
+    startText.text=b;
+    endText.text=a;
+}
+-(void)queryBtnAction
+{
+    [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
+    [[NSNotificationCenter defaultCenter]postNotificationName:@"CHANGELINE" object:nil];
+    
+    if(startText.text.length<2||endText.text.length<2)
+    {
+        CATransition * animation = [CATransition animation];
+        animation.delegate = self;
+        animation.duration = 0.3;
+        animation.timingFunction = UIViewAnimationCurveEaseInOut;
+        animation.type = @"rippleEffect";
+        animation.subtype = kCATransitionFromLeft;
+        [self.layer addAnimation:animation forKey:@"animation"];
+        return;
+    }
+    
+    topView=[[TopView alloc]initWithFrame:CGRectMake(0,0,self.superview.frame.size.width,60)];
+    topView.autoresizingMask=UIViewAutoresizingFlexibleWidth;
+    
+    topView.startText.text=startText.text;
+    topView.endText.text=endText.text;
+    
+    [topView.homeBtn setBackgroundImage:[UIImage imageNamed:@"iPhone_btn_back_0_0"] forState:UIControlStateNormal];
+    [topView.homeBtn addTarget:self action:@selector(backAction) forControlEvents:UIControlEventTouchUpInside];
+    [self insertSubview:topView atIndex:1];
+    
+    query=[[QueryView alloc]initWithFrame:CGRectMake(0,60,self.superview.frame.size.width, self.superview.frame.size.height-60)];
+    [self insertSubview:query atIndex:2];
+    query.startPlaceLabel.text=startText.text;
+    query.endPlaceLabel.text=endText.text;
+    
+    d->StrBegin=topView.startText.text;
+    d->StrEnd=topView.endText.text;
+    [d BuildGraph];
+    
+    sortPassStationArray=[[NSMutableArray alloc]init];
+    for (NSString *str in [d.passStationArray reverseObjectEnumerator]) {
+        [sortPassStationArray addObject:str];
+    }
+    
+    for (NSString *tt in sortPassStationArray) {
+        NSLog(@"=顺序排好厚=====::%@",tt);
+    }
+    if([sortPassStationArray count]>0){
+        [sortPassStationArray removeObjectAtIndex:0];
+    }
+    
+    NSMutableDictionary *ticketPriceDic=[SqliteDao findTicketPriceByStationId:topView.startText.text str:topView.endText.text];
+    
+    if([countChange isEqualToString:@"0"])
+        query.detailLabel.text=[NSString stringWithFormat:@"xx分钟，%i站\t\t\t%@元",d->length,[ticketPriceDic objectForKey:@"ZPRICE"]];
+    else
+        query.detailLabel.text=[NSString stringWithFormat:@"xx分钟，%i站，换乘xx次\t\t%@元",d->length,[ticketPriceDic objectForKey:@"ZPRICE"]];
+    
+
+    [query getLineAndColor:topView.startText.text str:topView.endText.text];
+    [self insertSubview:query atIndex:6];
+    
+    query.array=sortPassStationArray;
+    self.delegate=query;
+    [self.delegate getPlaces:query.array];
+    
+    CATransition *animation=[CATransition animation];
+    animation.duration=0.3;
+    [animation setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+    [animation setType:kCATransitionPush];
+    [animation setSubtype:kCATransitionFromTop];
+    [query.layer addAnimation:animation forKey:nil];
+    
+    [topView.homeBtn setBackgroundImage:[UIImage imageNamed:@"iPhone_btn_back_0_0"] forState:UIControlStateNormal];
+    [topView.homeBtn addTarget:self action:@selector(backAction) forControlEvents:UIControlEventTouchUpInside];
+}
+-(BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    [textField resignFirstResponder];
+    if(startText.text.length>1&&endText.text.length>1)
+        [self queryBtnAction];
+    return YES;
+}
+-(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    UITouch *touch=[touches anyObject];
+    CGPoint xy = [touch locationInView:self];
+    if(xy.y>280)
+    {
+        CATransition * animation = [CATransition animation];
+        animation.delegate = self;
+        animation.duration = 0.3;
+        animation.timingFunction = UIViewAnimationCurveEaseInOut;
+        animation.type = @"rippleEffect";
+        animation.subtype = kCATransitionFromLeft;
+        [self.layer addAnimation:animation forKey:@"animation"];
+    }
+    else
+    {
+        [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
+    }
+}
+-(void)backAction
+{
+    CATransition * animation = [CATransition animation];
+    animation.delegate = self;
+    animation.duration = 0.3;
+    animation.timingFunction = UIViewAnimationCurveEaseInOut;
+    animation.type = @"rippleEffect";
+    animation.subtype = kCATransitionFromLeft;
+    [self.layer addAnimation:animation forKey:@"animation"];
+}
+-(void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag
+{
+    if (flag) {
+          [self removeFromSuperview];
+    }
+}
+@end

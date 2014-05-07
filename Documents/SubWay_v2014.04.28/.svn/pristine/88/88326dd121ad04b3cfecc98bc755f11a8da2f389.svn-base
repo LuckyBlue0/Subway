@@ -1,0 +1,134 @@
+//
+//  MRZoomScrollView.m
+//  ScrollViewWithZoom
+//
+//  Created by xuym on 13-3-27.
+//  Copyright (c) 2013年 xuym. All rights reserved.
+//
+
+#import "MRZoomScrollView.h"
+
+#define MRScreenWidth      CGRectGetWidth([UIScreen mainScreen].applicationFrame)
+#define MRScreenHeight     CGRectGetHeight([UIScreen mainScreen].applicationFrame)
+
+@interface MRZoomScrollView (Utility)
+
+- (CGRect)zoomRectForScale:(float)scale withCenter:(CGPoint)center;
+
+@end
+
+@implementation MRZoomScrollView
+
+@synthesize imageView;
+
+- (id)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        
+        self.delegate = self;
+        self.frame = CGRectMake(0, 0, MRScreenWidth, MRScreenHeight);
+        [self initImageView];
+    
+    }
+    return self;
+}
+
+- (void)initImageView
+{
+    imageView = [[UIImageView alloc]init];
+    
+    // The imageView can be zoomed largest size
+    imageView.frame = CGRectMake(0, 0, MRScreenWidth *5.0, MRScreenHeight *5.0);
+    imageView.userInteractionEnabled = YES;
+    [self addSubview:imageView];
+    [imageView release];
+    
+    // Add gesture,double tap zoom imageView.
+    UIPinchGestureRecognizer *pinchTapGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self
+                                                                                action:@selector(handleDoubleTap:)];
+    
+    UITapGestureRecognizer *tapTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                                        action:@selector(handleDoubleTap1:)];
+    
+    UILongPressGestureRecognizer *longPressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self
+                                                                                    action:@selector(handleDoubleTap2:)];
+    [imageView addGestureRecognizer:pinchTapGesture];
+    [imageView addGestureRecognizer:tapTapGesture];
+    [imageView addGestureRecognizer:longPressGesture];
+    [pinchTapGesture release];
+    [tapTapGesture release];
+    [longPressGesture release];
+    
+    [self setShowsHorizontalScrollIndicator:NO];
+    [self setShowsVerticalScrollIndicator:NO];
+    
+    float minimumScale = self.frame.size.width / imageView.frame.size.width;
+    [self setMinimumZoomScale:minimumScale];
+    [self setZoomScale:minimumScale];
+}
+
+
+#pragma mark - Zoom methods
+
+- (void)handleDoubleTap:(UIGestureRecognizer *)gesture
+{
+    float newScale = self.zoomScale * 1.5;
+    CGRect zoomRect = [self zoomRectForScale:newScale withCenter:[gesture locationInView:gesture.view]];
+    [self zoomToRect:zoomRect animated:YES];
+}
+- (void)handleDoubleTap1:(UIGestureRecognizer *)gesture
+{
+    float newScale = self.zoomScale * 1.5;
+    if(newScale==1.5f)
+    {
+        newScale = newScale / 1.5;
+        CGRect zoomRect = [self zoomRectForScale:newScale withCenter:[gesture locationInView:gesture.view]];
+        [self zoomToRect:zoomRect animated:YES];
+    }
+    {
+        CGRect zoomRect = [self zoomRectForScale:newScale withCenter:[gesture locationInView:gesture.view]];
+        [self zoomToRect:zoomRect animated:YES];
+    }
+}
+-(void)handleDoubleTap2:(UIGestureRecognizer *)gesture
+{
+    NSLog(@"---%f",self.zoomScale);
+    CGPoint xy = [gesture locationInView:gesture.view];
+    NSLog(@"---%f--%f",xy.x*self.zoomScale,xy.y*self.zoomScale);
+    
+}
+-(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    
+}
+- (CGRect)zoomRectForScale:(float)scale withCenter:(CGPoint)center
+{
+    CGRect zoomRect;
+    zoomRect.size.height = self.frame.size.height / scale;
+    zoomRect.size.width  = self.frame.size.width  / scale;
+    zoomRect.origin.x = center.x - (zoomRect.size.width  / 2.0);
+    zoomRect.origin.y = center.y - (zoomRect.size.height / 2.0);
+    return zoomRect;
+}
+
+
+#pragma mark - UIScrollViewDelegate
+
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
+{
+    return imageView;
+}
+
+- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale
+{
+    [scrollView setZoomScale:scale animated:NO];
+}
+
+#pragma mark - View cycle
+- (void)dealloc
+{
+    [super dealloc];
+}
+
+@end

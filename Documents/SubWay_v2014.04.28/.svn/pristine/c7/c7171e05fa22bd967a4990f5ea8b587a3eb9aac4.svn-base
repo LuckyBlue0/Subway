@@ -1,0 +1,540 @@
+//
+//  MainViewController.m
+//  SubWay
+//
+//  Created by apple on 14-3-24.
+//  Copyright (c) 2014年 apple. All rights reserved.
+//
+
+#import "MainViewController.h"
+#import "MBProgressHUD.h"
+
+extern NSMutableArray *allStationArray;
+extern NSMutableArray *arrayPublicLine;
+extern NSMutableArray *arrLinePub;
+
+@interface MainViewController ()
+
+@end
+
+@implementation MainViewController
+@synthesize delegate;
+@synthesize actionSheet;
+@synthesize actionSheet1;
+@synthesize homeCompany;
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+#pragma mark-初始化站点和交叉点
+    {
+        d=[Dijkstra new];//dijkstra
+        
+        line1=@[@"西朗",@"坑口",@"花地湾",@"芳村",@"黄沙",@"长寿路",@"陈家祠",@"西门口",@"公园前",@"农讲所",@"烈士陵园",@"东山口",@"杨箕",@"体育西路",@"体育中心",@"广州东站"];
+        
+        line2=@[@"嘉禾望岗",@"黄边",@"江夏",@"萧岗",@"白云文化广场",@"白云公园",@"飞翔公园",@"三元里",@"广州火车站",@"越秀公园",@"纪念堂",@"公园前",@"海珠广场",@"市二宫",@"江南西",@"昌岗",@"江泰路",@"东晓南",@"南洲",@"洛溪",@"南浦",@"会江",@"石壁",@"广州南站"];
+        
+        line3A=@[@"机场南",@"高增（未开通）",@"人和",@"龙归",@"嘉禾望岗",@"白云大道北",@"永泰",@"同和",@"京溪南方医院",@"梅花园",@"燕塘",@"广州东站",@"林和西",@"体育西路"];
+        
+        line3B=@[@"天河客运站",@"五山",@"华师",@"岗顶",@"石牌桥",@"体育西路",@"珠江新城",@"广州塔",@"客村",@"大塘",@"沥滘",@"厦滘",@"大石",@"汉溪长隆",@"市桥",@"番禺广场"];
+        
+        line4=@[@"黄村",@"车陂",@"车陂南",@"万胜围",@"官洲",@"大学城北",@"大学城南",@"新造",@"官桥（未开通）",@"石碁",@"海傍",@"低涌",@"东涌",@"庆盛（未开通）",@"黄阁汽车城",@"黄阁",@"蕉门",@"金洲"];
+        
+        line5=@[@"滘口",@"坦尾",@"中山八",@"西场",@"西村",@"广州火车站",@"小北",@"淘金",@"区庄",@"动物园",@"杨箕",@"五羊邨",@"珠江新城",@"猎德",@"潭村",@"员村",@"科韵路",@"车陂南",@"东圃",@"三溪",@"鱼珠",@"大沙地",@"大沙东",@"文冲"];
+        
+        line6=@[@"浔峰岗",@"横沙",@"沙贝",@"河沙",@"坦尾",@"如意坊",@"黄沙",@"文化公园",@"一德路（未开通）",@"海珠广场",@"北京路",@"团一大广场",@"东湖",@"东山口",@"区庄",@"黄花岗",@"沙河顶",@"沙河（未开通）",@"天平架",@"燕塘",@"天河客运站",@"长湴"];
+        
+        line8=@[@"凤凰新村",@"沙园",@"宝岗大道",@"昌岗",@"晓港",@"中大",@"鹭江",@"客村",@"赤岗",@"磨碟沙",@"新港东",@"琶洲",@"万胜围"];
+        
+        lineAPM=@[@"林和西",@"体育中心南",@"天河南",@"黄埔大道",@"妇儿中心",@"花城大道",@"大剧院",@"海心沙",@"广州塔"];
+        
+        lineGF=@[@"西朗",@"菊树",@"龙溪",@"金融高新区",@"千灯湖",@"虫雷岗",@"南桂路",@"桂城",@"朝安",@"晋君北路",@"祖庙",@"同济路",@"季华园",@"魁奇路"];
+        
+        node=@[@"西朗",@"坑口",@"花地湾",@"芳村",@"黄沙",@"长寿路",@"陈家祠",@"西门口",@"公园前",@"农讲所",@"烈士陵园",@"东山口",@"杨箕",@"体育西路",@"体育中心",@"广州东站",@"嘉禾望岗",@"黄边",@"江夏",@"萧岗",@"白云文化广场",@"白云公园",@"飞翔公园",@"三元里",@"广州火车站",@"越秀公园",@"纪念堂",@"海珠广场",@"市二宫",@"江南西",@"昌岗",@"江泰路",@"东晓南",@"南洲",@"洛溪",@"南浦",@"会江",@"石壁",@"广州南站",@"机场南",@"高增（未开通）",@"人和",@"龙归",@"白云大道北",@"永泰",@"同和",@"京溪南方医院",@"梅花园",@"燕塘",@"林和西",@"天河客运站",@"五山",@"华师",@"岗顶",@"石牌桥",@"珠江新城",@"广州塔",@"客村",@"大塘",@"沥滘",@"厦滘",@"大石",@"汉溪长隆",@"市桥",@"番禺广场",@"黄村",@"车陂",@"车陂南",@"万胜围",@"官洲",@"大学城北",@"大学城南",@"新造",@"官桥（未开通）",@"石碁",@"海傍",@"低涌",@"东涌",@"庆盛（未开通）",@"黄阁汽车城",@"黄阁",@"蕉门",@"金洲",@"滘口",@"坦尾",@"中山八",@"西场",@"西村",@"小北",@"淘金",@"区庄",@"动物园",@"五羊邨",@"猎德",@"潭村",@"员村",@"科韵路",@"东圃",@"三溪",@"鱼珠",@"大沙地",@"大沙东",@"文冲",@"浔峰岗",@"横沙",@"沙贝",@"河沙",@"如意坊",@"文化公园",@"一德路（未开通）",@"北京路",@"团一大广场",@"东湖",@"黄花岗",@"沙河顶",@"沙河（未开通）",@"天平架",@"长湴",@"凤凰新村",@"沙园",@"宝岗大道",@"晓港",@"中大",@"鹭江",@"赤岗",@"磨碟沙",@"新港东",@"琶洲",@"体育中心南",@"天河南",@"黄埔大道",@"妇儿中心",@"花城大道",@"大剧院",@"海心沙",@"菊树",@"龙溪",@"金融高新区",@"千灯湖",@"虫雷岗",@"南桂路",@"桂城",@"朝安",@"晋君北路",@"祖庙",@"同济路",@"季华园",@"魁奇路"];
+        
+        changeStationArray=@[@"嘉禾望岗",@"燕塘",@"坦尾",@"广州火车站",@"公园前",@"西朗",@"黄沙",@"东山口",@"杨箕",@"体育西路",@"广州东站",@"昌岗",@"林和西",@"天河客运站",@"珠江新城",@"客村",@"广州塔",@"车陂南",@"万胜围",@"区庄",@"海珠广场"];
+        
+        arrLinePub=[NSMutableArray array];
+        arrayPublicLine=[NSMutableArray array];
+    }
+
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(selectedStationAction:) name:@"selectedStation" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(selectedStationRouteAction:) name:@"selectedStationRoute" object:nil];
+    
+    homeCompany=@"无";//标识家跟公司 设为终点
+    
+    display=[[DisplayView alloc]initWithFrame:CGRectMake(0,0, self.view.frame.size.width, self.view.frame.size.height)];
+    display.delegate=self;
+    [self.view insertSubview:display atIndex:0];
+    
+    topView=[[TopView alloc]initWithFrame:CGRectMake(0,0,self.view.frame.size.width,60)];
+    topView.autoresizingMask=UIViewAutoresizingFlexibleWidth;
+    topView.delegate=self;
+
+    [self.view insertSubview:topView atIndex:1];
+    
+    bottomView=[[BottomView alloc]initWithFrame:CGRectMake(0,self.view.frame.size.height-50,self.view.frame.size.width,50)];
+    bottomView.delegate=self;
+    bottomView.autoresizingMask=UIViewAutoresizingFlexibleWidth;
+    [self.view insertSubview:bottomView atIndex:2];
+    
+    toolsView=[[ToolsView alloc]initWithFrame:CGRectMake(20,self.view.frame.size.height-150,40,80)];
+    toolsView.delegate=self;
+    [self.view insertSubview:toolsView atIndex:3];
+    
+    query=[[QueryView alloc]initWithFrame:CGRectMake(0,60,self.view.frame.size.width, self.view.frame.size.height-60)];
+    query.tag=13;
+    
+    scale=1.2f;
+    allStationArray=[[NSMutableArray alloc]initWithArray:(NSArray *)[SqliteDao queryStation]];
+    
+    if([CLLocationManager locationServicesEnabled])
+    {
+        locationManager = [[CLLocationManager alloc]init];
+        locationManager.delegate = self;
+        locationManager.desiredAccuracy=kCLLocationAccuracyBest;
+        locationManager.distanceFilter = 100.0f;
+        //[locationManager startUpdatingLocation];
+    }
+}
+-(void)selectedStationAction:(NSNotification *)notification
+{
+    NSDictionary *dic=[notification object];
+    if([[[dic allKeys] objectAtIndex:0] isEqualToString:@"startText"])
+        topView.startText.text=[dic objectForKey:@"startText"];
+    else
+        topView.endText.text=[dic objectForKey:@"endText"];
+}
+-(void)selectedStationRouteAction:(NSNotification *)notification
+{
+    if(topView.startText.text.length>0)
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"StartValue" object:topView.startText.text];
+    }
+    if(topView.endText.text.length>0)
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"EndValue" object:topView.endText.text];
+    }
+    if(topView.endText.text.length>0&&[topView.startText.text isEqualToString:topView.endText.text]&&topView.startText.text.length>0)
+    {
+        topView.endText.text=@"";
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"closeEnd" object:nil];
+        
+        MBProgressHUD *HUD = [[MBProgressHUD alloc] initWithView:self.view];
+        [self.view addSubview:HUD];
+        HUD.labelText = @"起点、终点不能一致";
+        HUD.mode = MBProgressHUDModeText;
+        
+        //指定距离中心点的X轴和Y轴的偏移量，如果不指定则在屏幕中间显示
+        //    HUD.yOffset = 150.0f;
+        //    HUD.xOffset = 100.0f;
+        
+        [HUD showAnimated:YES whileExecutingBlock:^{
+            sleep(2);
+        } completionBlock:^{
+            [HUD removeFromSuperview];
+        }];
+    }
+    else{
+        if(topView.startText.text.length>0&&topView.endText.text.length>0)
+            [self query];
+    }
+}
+-(void)search
+{
+    [self checkStartEndText];
+}
+- (UIStatusBarStyle)preferredStatusBarStyle
+{
+    return UIStatusBarStyleLightContent;
+}
+#pragma mark -display 的委托
+-(void)startFieldText:(NSString *)s
+{
+    topView.startText.text=s;
+    query.startPlaceLabel.text=s;
+    query.startPlace1.text=s;
+    [self checkStartEndText];
+}
+-(void)endFieldText:(NSString *)e
+{
+    topView.endText.text=e;
+    query.endPlaceLabel.text=e;
+    query.endPlace2.text=e;
+    [self checkStartEndText];
+}
+#pragma mark- 缩放的值delegate
+-(void)passScaleValue:(float)scaleV
+{
+    scale=scaleV;
+}
+-(void)checkStartEndText
+{
+    if([topView.startText.text isEqualToString:topView.endText.text]&&topView.startText.text.length>0)
+    {
+        topView.endText.text=@"";
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"closeEnd" object:nil];
+        
+        MBProgressHUD *HUD = [[MBProgressHUD alloc] initWithView:self.view];
+        [self.view addSubview:HUD];
+        HUD.labelText = @"起点、终点不能一致";
+        HUD.mode = MBProgressHUDModeText;
+        
+        [HUD showAnimated:YES whileExecutingBlock:^{
+            sleep(1.5);
+        } completionBlock:^{
+            [HUD removeFromSuperview];
+        }];
+    }
+    else if ([topView.startText.text isEqualToString:@""]&&[topView.endText.text isEqualToString:@""])
+    {
+        MBProgressHUD *HUD = [[MBProgressHUD alloc] initWithView:self.view];
+        [self.view addSubview:HUD];
+        HUD.labelText = @"请设置站点";
+        HUD.mode = MBProgressHUDModeText;
+        
+        [HUD showAnimated:YES whileExecutingBlock:^{
+            sleep(1.5);
+        } completionBlock:^{
+            [HUD removeFromSuperview];
+        }];
+    }
+    else
+    {
+        if(topView.startText.text.length>0&&topView.endText.text.length>0&&![topView.startText.text isEqualToString:topView.endText.text]&&![topView.startText.text isEqualToString:@""])
+        {
+            [self query];
+        }
+    }
+}
+
+//#pragma mark-直接在textfield 输入 查路线
+//-(void)searchTextLine
+//{
+//    __block int a=0;
+//    __block int b=0;
+//    [allStationArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+//        
+//        if([topView.startText.text isEqualToString:[obj objectForKey:@"ZNAME"]]&&[[obj objectForKey:@"ZOPEN"] floatValue]==1){
+//             a=1;
+//        }
+//        if ([topView.endText.text isEqualToString:[obj objectForKey:@"ZNAME"]]&&[[obj objectForKey:@"ZOPEN"] floatValue]==1) {
+//            b=1;
+//        }
+//    }];
+//    if(a==1&&b==1)
+//        [self query];
+//}
+-(void)backAction
+{
+    CATransition * animation = [CATransition animation];
+    animation.delegate = self;
+    animation.duration = 0.3;
+    animation.timingFunction = UIViewAnimationCurveEaseInOut;
+    animation.type =kCATransitionPush;
+    animation.subtype = kCATransitionFromBottom;
+    query.alpha=0;
+    [query.layer addAnimation:animation forKey:@"animation"];
+    [[NSNotificationCenter defaultCenter]postNotificationName:@"CHANGELINE" object:nil];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"getPlaces" object:nil];
+    
+    [topView.homeBtn setBackgroundImage:[UIImage imageNamed:@"iPhone_btn_search_0_0"] forState:UIControlStateNormal];
+    [topView.homeBtn removeTarget:self action:@selector(backAction) forControlEvents:UIControlEventTouchUpInside];
+}
+-(void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag
+{
+    if(flag)
+        [[self.view viewWithTag:13]removeFromSuperview];
+}
+#pragma mark -bottom的委托-定位
+-(void)location
+{
+    if([CLLocationManager locationServicesEnabled])
+    {
+        if([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied)
+        {
+            UIAlertView *alert=[[UIAlertView alloc]initWithTitle:@"提示" message:@"定位未开启" delegate:nil cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+            [alert show];
+        }
+        else
+        {
+            [locationManager startUpdatingLocation];
+            homeCompany=@"无";
+        }
+    }
+    else
+    {
+        UIAlertView *alert=[[UIAlertView alloc]initWithTitle:@"提示" message:@"定位未开启" delegate:nil cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+        [alert show];
+    }
+}
+#pragma mark -放大地图
+-(void)zoomIn
+{
+    if(scale>=4.2f)
+    {
+        scale=4.2f;
+        //[toolsView.wideBtn setEnabled:NO];
+    }
+    else
+    {
+        //[toolsView.narrowBtn setEnabled:YES];
+        scale+=1.0f;
+        [display.scrollView setZoomScale:scale animated:YES];
+        [display.scrollView setContentSize:CGSizeMake(375*scale, 375*scale+60)];
+    }
+}
+#pragma mark -放小地图
+-(void)zoomOut
+{
+    if(scale<=1.2f)
+    {
+        scale=1.2f;
+        //[toolsView.narrowBtn setEnabled:NO];
+    }
+    else
+    {
+        //[toolsView.wideBtn setEnabled:YES];
+        scale-=1.0f;
+        [display.scrollView setZoomScale:scale animated:YES];
+        [display.scrollView setContentSize:CGSizeMake(375*scale, 375*scale+60)];
+    }
+}
+#pragma mark-bottomView的委托--弹出查地铁页面
+-(void)findSubway
+{
+    metro=[[FindMetro alloc]initWithFrame:CGRectMake(0,0,self.view.frame.size.width, self.view.frame.size.height-50)];
+    [self.view insertSubview:metro atIndex:4];
+    
+    CATransition *animation=[CATransition animation];
+    animation.duration=0.3;
+    [animation setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+    [animation setType:kCATransitionPush];
+    [animation setSubtype:kCATransitionFromTop];
+    [metro.layer addAnimation:animation forKey:nil];
+}
+#pragma mark-bottomView的委托--我要回家
+-(void)goHome
+{
+    NSUserDefaults *userDefaults=[NSUserDefaults standardUserDefaults];
+//    [userDefaults removeObjectForKey:@"home"];
+//    [userDefaults synchronize];
+    
+    if([userDefaults objectForKey:@"home"]){
+        GoHomeViewController *gohomeV=[[GoHomeViewController alloc]initWithNibName:IS_IPHONE5?@"GoHomeViewController_4":@"GoHomeViewController_3.5" bundle:nil];
+        [self presentViewController:gohomeV animated:YES completion:^{
+            
+        }];
+    }
+    else{
+        actionSheet=[[UIActionSheet alloc]initWithTitle:@"提示\n初次使用，需要设置“家”的位置" delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:@"当前位置设为“家”" otherButtonTitles:@"自定义", nil];
+        actionSheet.tag=1;
+        actionSheet.actionSheetStyle = UIActionSheetStyleBlackTranslucent;
+        actionSheet.delegate=self;
+        [actionSheet showInView:self.view];
+    }
+}
+#pragma mark-bottomView的委托--我要上班
+-(void)goWork
+{
+    NSUserDefaults *userDefaults=[NSUserDefaults standardUserDefaults];
+//    [userDefaults removeObjectForKey:@"company"];
+//    [userDefaults synchronize];
+    
+    if([userDefaults objectForKey:@"company"]){
+        
+        GoWorkViewController *goworkV=[[GoWorkViewController alloc]initWithNibName:IS_IPHONE5?@"GoWorkViewController_4":@"GoWorkViewController_3.5" bundle:nil];
+        [self presentViewController:goworkV animated:YES completion:^{
+            
+        }];
+    }
+    else{
+        actionSheet1=[[UIActionSheet alloc]initWithTitle:@"提示\n初次使用，需要设置“公司”的位置" delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:@"当前位置设为“公司”" otherButtonTitles:@"自定义", nil];
+        actionSheet1.tag=2;
+        actionSheet1.actionSheetStyle = UIActionSheetStyleBlackTranslucent;
+        actionSheet1.delegate=self;
+        [actionSheet1 showInView:self.view];
+    }
+}
+#pragma mark -actionsheet 委托
+-(void)actionSheet:(UIActionSheet *)actionSheets clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if(actionSheets.tag==1)
+    {
+        if(buttonIndex==0){
+            if([CLLocationManager locationServicesEnabled])
+            {
+                homeCompany=@"家";
+                [locationManager startUpdatingLocation];
+                [self showHUD: @"设置成功，欢迎体验一键回家"];
+            }
+            else
+            {
+                [self showHUD: @"定位未开启"];
+            }
+        }
+        else if(buttonIndex==1)
+        {
+            SelectHomeViewController *home=[[SelectHomeViewController alloc]initWithNibName:IS_IPHONE5?@"SelectHomeViewController_4":@"SelectHomeViewController_3.5" bundle:nil];
+            home.flag=@"0";
+            [self presentViewController:home animated:YES completion:^{
+                
+            }];
+        }
+    }
+    else if(actionSheets.tag==2)
+    {
+        if(buttonIndex==0){
+            if([CLLocationManager locationServicesEnabled])
+            {
+                homeCompany=@"公司";
+                [locationManager startUpdatingLocation];
+                [self showHUD:@"设置成功，欢迎体验一键上班"];
+            }
+            else
+                [self showHUD:@"定位未开启"];
+            
+        }
+        else if(buttonIndex==1)
+        {
+            SelectCompanyViewController *company=[[SelectCompanyViewController alloc]initWithNibName:IS_IPHONE5?@"SelectCompanyViewController_4":@"SelectCompanyViewController_3.5" bundle:nil];
+            company.flag=@"0";
+            [self presentViewController:company animated:YES completion:^{
+                
+            }];
+        }
+    }
+}
+#pragma mark -bottomView的委托--查询起点到终点的线路
+-(void)query
+{
+    d->StrBegin=topView.startText.text;
+    d->StrEnd=topView.endText.text;
+    [d BuildGraph];
+    
+    sortPassStationArray=[[NSMutableArray alloc]init];
+    for (NSString *str in [d.passStationArray reverseObjectEnumerator]) {
+        [sortPassStationArray addObject:str];
+    }
+    
+//    for (NSString *tt in sortPassStationArray) {
+//        NSLog(@"=顺序排好厚=====::%@",tt);
+//    }
+    if([sortPassStationArray count]>0){
+        [sortPassStationArray removeObjectAtIndex:0];
+    }
+    
+//    NSMutableDictionary *ticketPriceDic=[SqliteDao findTicketPriceByStationId:topView.startText.text str:topView.endText.text];
+//    query.price=[ticketPriceDic objectForKey:@"ZPRICE"];
+    
+    query.station=[NSString stringWithFormat:@"%i",d->length-1];
+    [query.startPlaceLabel setText:topView.startText.text];
+    [query.endPlaceLabel setText:topView.endText.text];
+
+    self.delegate=query;
+    [self.delegate getPlaces:sortPassStationArray];
+    
+    [query getLineAndColor:topView.startText.text str:topView.endText.text];
+    
+    query.alpha=1;
+    [self.view insertSubview:query atIndex:6];
+    
+    CATransition *animation=[CATransition animation];
+    animation.duration=0.3;
+    [animation setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+    [animation setType:kCATransitionPush];
+    [animation setSubtype:kCATransitionFromTop];
+    [query.layer addAnimation:animation forKey:nil];
+    
+    [topView.homeBtn setBackgroundImage:[UIImage imageNamed:@"iPhone_btn_back_0_0"] forState:UIControlStateNormal];
+    [topView.homeBtn addTarget:self action:@selector(backAction) forControlEvents:UIControlEventTouchUpInside];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+-(void)showHUD:(NSString *)str
+{
+    MBProgressHUD *HUD = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view.superview addSubview:HUD];
+    HUD.labelText = str;
+    HUD.mode = MBProgressHUDModeText;
+    [HUD showAnimated:YES whileExecutingBlock:^{
+        sleep(1.5);
+    } completionBlock:^{
+        [HUD removeFromSuperview];
+    }];
+}
+
+#pragma mark-locationManagerDelegate methods
+- (void)locationManager:(CLLocationManager *)manager
+    didUpdateToLocation:(CLLocation *)newLocation
+           fromLocation:(CLLocation *)oldLocation
+{
+
+    NSString *lat = [[NSString alloc] initWithFormat:@"%f",[newLocation coordinate].latitude];
+    NSString *lon = [[NSString alloc] initWithFormat:@"%f",[newLocation coordinate].longitude];
+    
+    CLGeocoder *myGecoder = [[CLGeocoder alloc] init];
+    [myGecoder reverseGeocodeLocation:newLocation completionHandler:^(NSArray *placemarks, NSError *error)
+     {
+         if(error == nil && [placemarks count]>0)
+         {
+            CLPlacemark *placemark = [placemarks objectAtIndex:0];
+
+             NSLog(@"Country = %@", placemark.country);
+             NSLog(@"administrativeArea = %@",placemark.administrativeArea);
+             NSLog(@"locality = %@", placemark.locality);
+             NSLog(@"subLocality=%@",placemark.subLocality);
+             NSLog(@"thoroughfare = %@", placemark.thoroughfare);
+             NSLog(@"subThoroughfare=%@",placemark.subThoroughfare);
+             
+         }
+         else if(error==nil && [placemarks count]==0)
+         {
+             NSLog(@"No results were returned.");
+         }
+         else if(error != nil)
+         {
+             NSLog(@"An error occurred = %@",error);
+         }
+     }];
+    
+    //更新定位信息方法
+    NSLog(@"定位 经度%@,纬度%@",lat,lon);
+    NSDictionary *dict=[[NSDictionary alloc]initWithObjectsAndKeys:lat,lon,nil];
+    if([homeCompany isEqualToString:@"家"])
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"LocationHome" object:dict];
+    }
+    else if([homeCompany isEqualToString:@"公司"])
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"LocationCompany" object:dict];
+    }
+    else if([homeCompany isEqualToString:@"无"]){
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"Location" object:dict];
+    }
+    [locationManager stopUpdatingLocation];
+}
+
+- (void)locationManager:(CLLocationManager *)manager
+       didFailWithError:(NSError *)error
+{
+    //定位失败
+     [locationManager stopUpdatingLocation];
+}
+@end

@@ -1,0 +1,50 @@
+//
+//  QueryView.h
+//  SubWay
+//
+//  Created by apple on 14-3-29.
+//  Copyright (c) 2014年 apple. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "LineStationView.h"
+#import "SqliteDao.h"
+#import <math.h>
+#import "GetPlacesDelegate.h"
+#import "Constants.h"
+
+@interface QueryView : UIView
+<GetPlacesDelegate>
+{
+    LineStationView *stationView;
+    NSMutableArray *changeArray1;
+}
+@property(nonatomic,retain)UIImageView *startImage;
+
+@property(nonatomic,retain)UIImageView *endImage;
+
+@property(nonatomic,retain)UILabel *startPlaceLabel;
+@property(nonatomic,retain)UILabel *endPlaceLabel;
+
+@property(nonatomic,retain)UILabel *timeLabel2;
+@property(nonatomic,retain)UILabel *detailLabel;
+@property(nonatomic,retain)UILabel *startTimeLabel;
+@property(nonatomic,retain)UILabel *endTimeLabel;
+
+@property(nonatomic,retain)UIScrollView *sc;
+@property(nonatomic,retain)UIView *startView;
+@property(nonatomic,retain)UIView *endView;
+
+@property(nonatomic,retain)UIImageView *startKuangImage1;
+@property(nonatomic,retain)UILabel *startPlace1;
+
+@property(nonatomic,retain)UIImageView *startKuangImage2;
+@property(nonatomic,retain)UILabel *endPlace2;
+@property(nonatomic,retain)NSMutableArray *array;
+
+@property(nonatomic,retain)NSString *station;//经过的站数
+@property(nonatomic,retain)NSString *price;//票价
+
+-(void)getLineAndColor:(NSString *)start str:(NSString *)end;
+-(void)getTime:(NSString *)start str:(NSString *)end;
+@end

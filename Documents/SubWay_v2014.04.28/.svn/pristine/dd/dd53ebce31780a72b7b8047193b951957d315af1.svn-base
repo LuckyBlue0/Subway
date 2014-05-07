@@ -1,0 +1,267 @@
+//
+//  Dijkstra.m
+//  SubWay
+//
+//  Created by Glex on 14-4-21.
+//  Copyright (c) 2014年 apple. All rights reserved.
+//
+
+#import "Dijkstra.h"
+#define SIZE_ONE 16
+#define SIZE_TWO 24
+#define SIZE_THIRDA 14
+#define SIZE_THIRDB 16
+#define SIZE_FOUR 18
+#define SIZE_FIVE 24
+#define SIZE_SIX 22
+#define SIZE_EIGHT 13
+#define SIZE_APM 9
+#define SIZE_GF 14
+
+extern NSArray *line1;
+extern NSArray *line2;
+extern NSArray *line3A;
+extern NSArray *line3B;
+extern NSArray *line4;
+extern NSArray *line5;
+extern NSArray *line6;
+extern NSArray *line8;
+extern NSArray *lineAPM;
+extern NSArray *lineGF;
+extern NSArray *node;
+
+@implementation Dijkstra
+@synthesize passStationArray;
+
+-(int)GetPos:(NSArray *)array s:(NSString *)str
+{
+    int k=0;
+    int j=0;
+    
+    for (NSString *ss in array)
+    {
+        if([ss isEqualToString:str])
+        {
+            k+=j;
+        }
+        j++;
+    }
+    return k;
+}
+-(void) BuildGraph
+{
+    // 初始化matrix
+    for (int i=0; i<M; i++)
+    {
+        for (int j=0; j<M; j++)
+        {
+            matrix[i][j]=0;
+        }
+    }
+    // 根据A建立边信息
+    for (int i=0; i<(SIZE_ONE-1); i++)
+    {
+        int u =[self GetPos:node s:line1[i]];
+        int v =[self GetPos:node s:line1[i+1]];
+        
+        matrix[u][v]=1;
+        matrix[v][u]=1;
+    }
+    // 根据B建立边信息
+    for (int i=0; i<(SIZE_TWO-1); i++)
+    {
+        int u =[self GetPos:node s:line2[i]];
+        int v =[self GetPos:node s:line2[i+1]];
+        
+        matrix[u][v]=1;
+        matrix[v][u]=1;
+    }
+    for (int i=0; i<(SIZE_THIRDA-1); i++)
+    {
+        int u =[self GetPos:node s:line3A[i]];
+        int v =[self GetPos:node s:line3A[i+1]];
+        
+        matrix[u][v]=1;
+        matrix[v][u]=1;
+    }
+    for (int i=0; i<(SIZE_THIRDB-1); i++)
+    {
+        int u =[self GetPos:node s:line3B[i]];
+        int v =[self GetPos:node s:line3B[i+1]];
+        
+        matrix[u][v]=1;
+        matrix[v][u]=1;
+    }
+    for (int i=0; i<(SIZE_FOUR-1); i++)
+    {
+        int u =[self GetPos:node s:line4[i]];
+        int v =[self GetPos:node s:line4[i+1]];
+        
+        matrix[u][v]=1;
+        matrix[v][u]=1;
+    }
+    for (int i=0; i<(SIZE_FIVE-1); i++)
+    {
+        int u =[self GetPos:node s:line5[i]];
+        int v =[self GetPos:node s:line5[i+1]];
+        
+        matrix[u][v]=1;
+        matrix[v][u]=1;
+    }
+    for (int i=0; i<(SIZE_SIX-1); i++)
+    {
+        int u =[self GetPos:node s:line6[i]];
+        int v =[self GetPos:node s:line6[i+1]];
+        
+        matrix[u][v]=1;
+        matrix[v][u]=1;
+    }
+    for (int i=0; i<(SIZE_EIGHT-1); i++)
+    {
+        int u =[self GetPos:node s:line8[i]];
+        int v =[self GetPos:node s:line8[i+1]];
+        
+        matrix[u][v]=1;
+        matrix[v][u]=1;
+    }
+    for (int i=0; i<(SIZE_APM-1); i++)
+    {
+        int u =[self GetPos:node s:lineAPM[i]];
+        int v =[self GetPos:node s:lineAPM[i+1]];
+        
+        matrix[u][v]=1;
+        matrix[v][u]=1;
+    }
+    for (int i=0; i<(SIZE_GF-1); i++)
+    {
+        int u =[self GetPos:node s:lineGF[i]];
+        int v =[self GetPos:node s:lineGF[i+1]];
+        
+        matrix[u][v]=1;
+        matrix[v][u]=1;
+    }
+    
+    int u = [self GetPos:node s:StrBegin];
+    int v = [self GetPos:node s:StrEnd];
+    
+    [self Dijkstra:u v:v];
+}
+-(void)Dijkstra:(int) v0 v:(int) v1
+{
+    // 1、初始化
+    for (int i=0; i<M; i++)
+    {
+        s[i] = false;
+        if (matrix[v0][i] != 0)
+        {
+            dist[i] = matrix[v0][i];
+            path[i] = v0;
+        }
+        else
+        {
+            dist[i] = INT_MAX;
+            path[i] = -1;
+        }
+    }
+    s[v0]=true;
+    dist[v0]=0;
+    path[v0]=v0;
+    
+    // 2、循环n-1次
+    for (int i=0; i<(M-1); i++)
+    {
+        // 2.1、取dist[u]最小的u
+        int min=INT_MAX;
+        int u;
+        for (int j=0; j<M; j++)
+        {
+            if (s[j] == false && dist[j] < min)
+            {
+                min = dist[j];
+                u = j;
+            }
+        }
+        s[u] = true;
+        // 2.2、更新u邻接的所有w
+        for (int w=0; w<M; w++)
+        {
+            if (s[w] == false &&matrix[u][w] != 0)
+            {
+                if (dist[u] + matrix[u][w] < dist[w])
+                {
+                    dist[w] = dist[u] + matrix[u][w];
+                    path[w] = u;
+                }
+            }
+        }
+    }
+    
+    passStationArray=[[NSMutableArray alloc]init];
+    // 3、获取结果
+    length=0;
+    while (v1 != v0)
+    {
+        v1 = path[v1];
+        [passStationArray addObject:[node objectAtIndex:v1]];
+        //NSLog(@"-dijistra-----:%@",[node objectAtIndex:v1]);
+        length++;
+    }
+    length ++;
+    NSLog(@"length:%i",length);
+}
+
++(NSMutableArray *)transLine:(NSMutableArray *)palcesLineArray s:(NSString *)start s1:(NSString *)end
+{
+    NSMutableArray *arrArrXiangLingZhan = [NSMutableArray array];
+    /**
+     *  两个站点确定的 地铁线ID
+     */
+    NSMutableArray *arrLine = [NSMutableArray array];
+    // 计算得到相邻站的公共 地铁线
+    
+    [palcesLineArray insertObject:start atIndex:0];
+    [palcesLineArray insertObject:end atIndex:palcesLineArray.count];
+    
+    for (NSInteger i=0; i<palcesLineArray.count-1; i++) {
+        NSString *zhanCurr = palcesLineArray[i];
+        NSString *zhanNext = palcesLineArray[i+1];
+        
+        NSArray *arrayCurr= [SqliteDao findLineByStationId:zhanCurr];
+        NSArray *arrayNext= [SqliteDao findLineByStationId:zhanNext];
+        
+        
+        NSMutableSet *lineCurr=[[NSMutableSet alloc]initWithArray:arrayCurr];
+        NSMutableSet *lineNext=[[NSMutableSet alloc]initWithArray:arrayNext];
+        
+        [lineCurr intersectSet:lineNext];
+        
+        // TODO:计算当前站和下一个站的公共 地铁线，得到两个字站共同的地铁线
+        NSNumber *linePub = [lineCurr anyObject];
+        
+        [arrLine addObject:linePub];
+        [arrArrXiangLingZhan addObject:@{zhanCurr:zhanNext}];
+    }
+    
+    NSMutableArray *changeArray1=[[NSMutableArray alloc]init];
+    
+    for (NSInteger i=0; i<arrLine.count-1; i++) {
+        NSNumber *lineCurr = [arrLine[i] objectForKey:@"ZLINEID"];
+        NSNumber *lineNext = [arrLine[i+1] objectForKey:@"ZLINEID"];
+        
+        
+        if ([lineCurr integerValue]!=[lineNext integerValue]) {
+            // 线路改变了，表示换乘点
+            NSMutableDictionary *dictCurrXiangLianZhan = arrArrXiangLingZhan[i];
+            
+            NSNumber *transZhan = [[dictCurrXiangLianZhan allValues] objectAtIndex:0];
+            [changeArray1 addObject:transZhan];
+        }
+    }
+    
+    for (NSString *ss in changeArray1) {
+        NSLog(@"-换乘站点-%@",ss);
+    }
+    return changeArray1;
+}
+
+@end

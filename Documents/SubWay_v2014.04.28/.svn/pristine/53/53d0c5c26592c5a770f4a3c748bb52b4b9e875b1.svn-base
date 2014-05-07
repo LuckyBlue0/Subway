@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>09EE79D9-EFC3-4A33-8529-2C9D202D968E</string>
+	<key>IDESourceControlProjectName</key>
+	<string>SubWay</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>0EBF42A9-BCEB-4653-B96E-EE3048D9DB12</key>
+		<string>svn://192.168.0.78/GZMetro/SubWay_v2014.04.08</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>SubWay.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>0EBF42A9-BCEB-4653-B96E-EE3048D9DB12</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectRepositoryRootDictionary</key>
+	<dict>
+		<key>0EBF42A9-BCEB-4653-B96E-EE3048D9DB12</key>
+		<string>svn://192.168.0.78</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>svn://192.168.0.78/GZMetro/SubWay_v2014.04.08/SubWay.xcodeproj</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>0EBF42A9-BCEB-4653-B96E-EE3048D9DB12</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.subversion</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>0EBF42A9-BCEB-4653-B96E-EE3048D9DB12</string>
+			<key>IDESourceControlWCCName</key>
+			<string>SubWay_v2014.04</string>
+		</dict>
+	</array>
+</dict>
+</plist>

@@ -1,0 +1,40 @@
+//
+//  BottomView.h
+//  SubWay
+//
+//  Created by apple on 14-3-24.
+//  Copyright (c) 2014年 apple. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@protocol TouchBottomDelegate <NSObject>
+
+@optional
+-(void)findSubway;
+-(void)goHome;
+-(void)goWork;
+-(void)location;
+
+@end
+
+@interface BottomView : UIView
+{
+    UIView *view3;
+    UITapGestureRecognizer *tap3;
+}
+@property(nonatomic,retain)UIButton *locationBtn;
+@property(nonatomic,retain)UILabel *locationLabel;
+
+@property(nonatomic,retain)UIButton *goHomeBtn;
+@property(nonatomic,retain)UILabel *goHomeLabel;
+
+@property(nonatomic,retain)UIButton *goWorkBtn;
+@property(nonatomic,retain)UILabel *goWorkLabel;
+
+@property(nonatomic,retain)UIButton *findSubWayBtn;
+@property(nonatomic,retain)UILabel *findSubWayLabel;
+
+
+@property(nonatomic,retain)id<TouchBottomDelegate>delegate;
+@end
